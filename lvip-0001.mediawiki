@@ -1,8 +1,8 @@
 <pre>
 LVIP：Lava Improvement Proposal（Lava改进提案）
 
-LVIP-1：
-LVIP: 1
+LVIP-0001：
+LVIP: 0001
 Title: A Proposal for LVIP
 Author: 
 Status: Draft
