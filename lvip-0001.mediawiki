@@ -4,7 +4,7 @@ LVIP：Lava Improvement Proposal（Lava改进提案）
 LVIP-0001：
 LVIP: 0001
 Title: A Proposal for LVIP
-Author: 
+Author: lavatech
 Status: Draft
 Type: Process
 Created: 2019-10-12
@@ -82,4 +82,11 @@ Superseded-By: 如果被Replaced，则展示后继者的LVIP编号。
 ·对于协议类LVIP，作者应当提出较为成熟的解决方案构想与代码内容。
 
 ==历史==
+
+该文档由lavatech编写，构思来源于比特币BIPs机制。
+
+该文档与Lava源代码开源一同发布，旨在提出和建立Lava自有的LVIP机制。同时，该文档自身也是第一个LVIP文档，即LVIP-0001。
+
 ==修改记录==
+
+2019-10-15：文档发布 By lavatech 
