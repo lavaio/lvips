@@ -48,6 +48,8 @@ LVIP的提出者和审核者应当谨慎对待分类的准确性，不同的分�
 <br />
 
 ### LVIP的处理流程标准：
+
+![process.png](https://github.com/lavaio/lvips/blob/master/lvip-0001/process.png)
  
 一个LVIP的生命周期包含以下状态节点：
 
