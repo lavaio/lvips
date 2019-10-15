@@ -4,6 +4,8 @@ Lava Improvement Proposals http://lavatech.org
 LVIP：Lava Improvement Proposal（Lava改进提案）
 
 ### LVIP-0001：
+
+```
 LVIP: 0001
 Title: A Proposal for LVIP
 Author: 
@@ -11,6 +13,7 @@ Status: Draft
 Type: Process
 Created: 2019-10-12
 Superseded-By: None
+```
 
 <br />
 
@@ -78,6 +81,7 @@ Panel小组成员以集体讨论和集体决策为核心组织制度维持Panel�
 
 所有LVIP草案都应当遵循以下格式标准编写LVIP的Header：
 
+```
 LVIP: 编号
 Title: 名称（能够表达该LVIP的主要内容）
 Author: 作者，可以匿名
@@ -85,6 +89,7 @@ Status: LVIP状态，包括Draft、Accepted、Replaced
 Type: LVIP的类型，包括Protocol、Non-Protocol
 Created: 创建时间
 Superseded-By: 如果被Replaced，则展示后继者的LVIP编号。
+```
 
 此外，作者应在LVIP的正文中描述以下内容：
 
