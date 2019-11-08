@@ -1,0 +1,59 @@
+LVIP-0003： 原子交换机
+
+<pre>
+LVIP-0003：
+LVIP: 0003
+Title: A Proposal for Atomic Switch
+Author: lavatech
+Status: Draft
+Type: Protocol
+Created: 2019-11-11
+Superseded-By: None
+</pre>
+
+
+==概述==
+LVIP-0003提出了一种原子交换机（atomic switch）的原型，以提供lava与比特币之间的原子交换（atomic swaps）服务。
+原子交换是一种支持两种运行在不同区块链网络上的加密货币进行快速交换的技术。这种交易过程（也称为原子跨链交易）是基于智能合约（脚本）的，可以支持用户从他们的加密钱包中直接交换想要的代币。因此，原子交换本质上是跨链的点对点交易。
+
+==动机==
+原子交换具有改善加密货币领域的巨大潜力，但目前尚未大范围进行测试。跨链交易最终可以解决许多中心化交易所存在的问题。虽然这些交易所目前仍然维持着加密货币的运行，但是它们仍然存在一系列隐患。其中部分问题包括：
+*更重大的威胁隐患：中心化交易所具有更大的价值，因此他们更容易受到黑客攻击，中心化交易所是数字货币劫持的主要目标。
+*不完善的资金管理以及人为错误：中心化交易所需要人为运营。如果那些担任重要角色的管理者发生失误，或决策者在交易所运营方面做出决策失误，那么交易所用户的资金就会受到损失。
+*运营成本较高：中心化交易所有较高的提现和交易手续费。
+*交易量剧增导致低效率：当市场活动过于活跃时，中心化交易所往往无法应对大量增加的交易需求，导致系统运行缓慢或服务不可用。
+==哈希时间锁合约（HTLC）==
+本设计以HTLC为技术基础，关于HTLC的详细介绍，见BIP-0199。
+
+==交换机功能概述==
+本方案中的交换机必须拥有如下功能：
+*能保存用户LAVA和BTC两套私钥，
+*能检测并解析LAVA和BTC主网上的HTLC交易，
+*能通过私钥创建LAVA主网上的HTLC交易，并广播，
+*能检测并解析LAVA主网上的Transfer交易，
+*能通过私钥创建LAVA和BTC主网上的Transfer交易，并广播，以处理：
+*#超时后将LV或BTC转移回原地址，
+*#使用原象解锁HTLC交易后，将币转移至用户自身的地址，
+*能监听和分析一些事件：
+*#某个HTLC交易超时，
+*#某主网上出现新的区块，
+
+==交换机工作原理==
+<img src=lvip-0003/atomicswitch.png></img>
+现在让我们来看看原子交换机是如何工作的，假设Alice想用她手中的0.1BTC，换取Bob的100LV，同时Alice和Bob各自都持有自己的原子交换机。交易流程如下：
+#Alice首先通过BTC第三方工具（具体工具由Alice自行选择）生成一个原象n，再通过工具使用n的哈希值Hash（n）构造在BTC主网上的HTLC交易（HTLC-TX-A）并发送。交易中规定了转给Bob的0.1BTC，但是Bob必须使用原象n对其解锁后才能使用，同时交易设置一个超时时间T1，当T1到达时，Alice有权通过自己的交换机（Alice switch）将交易中的0.1BTC收回。这也督促了Bob必须在T1来到之前获得原象，并将这0.1BTC转移（对应图中的Transfer 0.1BTC to Bob）。
+#当Alice的HTLC-TX-A发送到BTC主网后，被Bob的交换机（Bob switch）检测到。交换机通过解析HTLC-TX-A获取Hash（n），利用该哈希值，Bob构造一条LAVA主网上的HTLC交易（HTLC-TX-B）,交易中规定了转给Alice的100LV，相应的，Alice必须使用原象n对其解锁后才能使用。另外，交易还设置了一个超时时间T2（T2<T1），当T2到达时，Bob有权将交易中的100LV收回。这也督促了Alice必须在T2来到之前交出原象n，并将这100LV转移（对应图中的Transfer 100LV to Alice）。
+#此为止，Alice和Bob的跨链交易通道已经打通。接着，Alice的交换机通过使用原像n对HTLC-TX-B中的100LV进行转移。Alice的交换机此时向LAVA主网发送一条如图所示的Transfer 100LV to Alice的交易（TOA），用以转移100LV至自己的地址。
+#Bob的交换机在LAVA主网接收到这条交易TOA后，立即解析获得原像n。同时通过Bob自己的交换机自动在BTC主网上发送如图所示的Transfer 0.1BTC to Bob的交易（TOB），用以转移0.1BTC至自己的地址。于是，Alice和Bob的跨链交易也相应完成。
+#假设T2时间到达，而Alice还没交出原像n来转移HTLC-TX-B中的100LV，那么Bob会使用交换机将这100LV取回到自己的LAVA账户；同理，在T1结束后，Alice也可以通过交换机将0.1BTC转回自己的BTC账户。这就保证了跨链原子交换的原子特性，即要么都不完成，要么都完成。
+
+==参考资料==
+[https://github.com/bitcoin/bips/blob/master/bip-0199.mediawiki BIP0199: HTLC]
+
+[https://github.com/lavaio/lvips/blob/master/lvip-0001.mediawiki LVIP0001: Lava Improvement Proposal]
+
+==历史==
+# lavatech编写提交。
+
+==修改记录==
+# 2019-11-11：文档发布 By lavatech 
