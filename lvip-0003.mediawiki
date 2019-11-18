@@ -27,16 +27,13 @@ LVIP-0003提出了一种原子交换机（atomic switch）的原型，以提供l
 
 ==交换机功能概述==
 本方案中的交换机必须拥有如下功能：
-*能保存用户LAVA和BTC两套私钥，
-*能检测并解析LAVA和BTC主网上的HTLC交易，
-*能通过私钥创建LAVA主网上的HTLC交易，并广播，
-*能检测并解析LAVA主网上的Transfer交易，
-*能通过私钥创建LAVA和BTC主网上的Transfer交易，并广播，以处理：
+*由于BTC和Lava的私钥系统相同，所以交换机中Lava私钥和BTC私钥共用，
+*能够获取原象n对应的哈希值imagehash，
+*能构造LAVA和BTC主网上的HTLC脚本地址，
+*能通过私钥创建LAVA和BTC主网上的花费HTLC的交易（spendhtlc交易），并广播，以处理：
 *#超时后将LV或BTC转移回原地址，
 *#使用原象解锁HTLC交易后，将币转移至用户自身的地址，
-*能监听和分析一些事件：
-*#某个HTLC交易超时，
-*#某主网上出现新的区块，
+*能解析spendhtlc交易使用的原象n。
 
 ==交换机工作原理==
 <img src=lvip-0003/sequenceDiagram.png></img>
