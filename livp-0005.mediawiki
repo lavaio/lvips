@@ -1,0 +1,70 @@
+LVIP-0005： New Plotting Standard-PoC2 Plus
+
+<pre>
+LVIP-0005：
+LVIP: 0005
+Title: A Proposal for New Plotting Standard – PoC2 Plus
+Author: lavatech
+Status: Draft
+Type: Protocol
+Created: 2019-01-16
+Superseded-By: None
+</pre>
+
+==概述==
+LVIP-0005提出了基于现行的Plotting格式标准即PoC2的改进方案，称之为PoC2 Plus标准（后文简称PoC2+）。新标准抛弃了冗余的Plot ID概念，并定义了新的Plot文件生成规范；此外，新标准在技术上进一步明确了Plot文件的地址归属和项目归属。
+
+LVIP-0005是针对PoC生态提出有利于长远发展的技术性、规范性建议。新的标准并不仅限于Lava，将面向全生态开放共用。
+
+==背景==
+PoC2是现行通用的Plotting格式标准。
+
+PoC2标准在PoC1基础上改进而来，该标准定义了生成Plot文件的完整流程与参数细节，包括：Plot ID的产生方式、Nonce的构造与计算过程、Plot文件的命名规则等。事实上， Plotting相关的基本规范在更早的PoC1版本中就已经有较为明确的定义，而PoC2在此基础上作出了细节上的改进，例如增加了Nonce中SHABAL哈希结果的镜像转换重组过程，视为对PoC1的进一步优化。
+
+PoC1与PoC2标准的主要工作由Burstcoin项目提出并设计完成，目前几乎所有PoC共识的Plotting过程都遵从PoC2的基本框架。
+
+==动机==
+事实上，PoC2存在若干缺陷，这些缺陷总体上是在设计之初受制于Burstcoin固有架构约束，或PoC发展早期的特定设计思维形成的。我们考虑的缺陷可能包括以下方面：
+
+1）由于Burstcoin的区块链基于账户模型，设计了以Plot ID为核心的解决方案，即通过账户地址计算生成唯一对应的Plot ID、对Plot ID进行注册，成为矿工参与挖矿并获取收益的身份标识符。技术意义上，Plot ID存在一定的冗余性，尤其考虑到Lava基于纯粹的UTXO模型，对Plot ID的使用仅仅是出于前期对PoC1和PoC2进行沿用的考虑，这一方案并非最适宜Lava的方案。
+
+2）Plot ID是根据账户地址在特定的算法下计算得到的，存在一定的信息压缩性，即Plot ID相对于公钥是有损的。由于现行标准的Plot ID采用15-20位左右十进制数字，导致Plot ID可能发生碰撞。如果不同的账户地址使用同一个Plot ID，对账户地址的身份标识出现了混淆，带来系统安全性问题。
+
+3）此外，现行的Plot ID方案也导致不同采用PoC共识的区块链之间也可能存在“共用Plot ID”问题，以及Plot文件的归属不明确的问题。这些问题将导致PoC生态的算力增长并不能同步带来安全性的增加，不利于生态的长远发展。
+
+==提出PoC2+新标准==
+综上，我们提出基于原有PoC2框架的重大改进方案：PoC2+标准。除了在Lava推进PoC2+标准以外，我们也希望该标准开放给其他PoC项目所使用。
+
+PoC2+标准的要点描述：
+
+·使用32字节Plot Seed代替原标准16字节Plot Seed。
+
+·直接使用公钥哈希作为矿工的唯一身份标识。
+
+·在Plot Seed末尾添加可自定义的Plot身份标识符Plot Route。
+
+·定义了Plotting过程涉及的其他若干格式规范。
+
+·定义了适配以上过程的Plotter、Miner、扫盘软件所遵从的规范。
+
+==升级过程==
+·对Lava主网进行硬分叉式协议升级。
+·使用适合PoC2+标准的Plotter和Miner。
+·在新规范下重新生成Plot文件（即需要重新“P盘”）。
+
+==附录==
+1.PoC2+标准下的Plot Seed结构
+引入了长度为32字节的新Seed，结构如下图所示。
+<img src=lvip-0001/Seed info.png></img> 
+·Nonce为8字节随机数种子；
+·Key ID为20字节地址哈希（未经Base58编码）；
+·Plot Route为4字节可自定义Plot身份标识符；
+
+==参考资料==
+[1] https://github.com/lavaio/lvips/blob/master/lvip-0001.mediawiki
+
+==历史==
+# lavatech编写提交。
+
+==修改记录==
+# 2020-01-17：文档发布 By lavatech 
