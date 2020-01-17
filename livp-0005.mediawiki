@@ -45,19 +45,26 @@ PoC2+标准的要点描述：
 
 ·定义了Plotting过程涉及的其他若干格式规范。
 
-·定义了适配以上过程的Plotter、Miner、扫盘软件所遵从的规范。
+·定义了适配以上过程的Plotter、Miner所遵从的规范。
 
 ==升级过程==
 ·对Lava主网进行硬分叉式协议升级。
+
 ·使用适合PoC2+标准的Plotter和Miner。
+
 ·在新规范下重新生成Plot文件（即需要重新“P盘”）。
 
 ==附录==
 1.PoC2+标准下的Plot Seed结构
+
 引入了长度为32字节的新Seed，结构如下图所示。
-<img src=lvip-0001/Seed info.png></img> 
+
+<img src=lvip-0001/route.png></img> 
+
 ·Nonce为8字节随机数种子；
+
 ·Key ID为20字节地址哈希（未经Base58编码）；
+
 ·Plot Route为4字节可自定义Plot身份标识符；
 
 ==参考资料==
