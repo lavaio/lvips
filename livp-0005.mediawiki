@@ -37,7 +37,7 @@ PoC1与PoC2标准的主要工作由Burstcoin项目提出并设计完成，目前
 
 PoC2+标准的要点描述：
 
-·使用32字节Plot Seed代替原标准16字节Plot Seed。
+·使用31字节Plot Seed代替原标准16字节Plot Seed。
 
 ·直接使用公钥哈希作为矿工的唯一身份标识。
 
@@ -57,15 +57,17 @@ PoC2+标准的要点描述：
 ==附录==
 1.PoC2+标准下的Plot Seed结构
 
-引入了长度为32字节的新Seed，结构如下图所示。
+引入了长度为31字节的新Seed，结构如下图所示。
 
-<img src=lvip-0001/route.png></img> 
+<img src=lvip-0001/PlotSeed2.png></img> 
 
 ·Nonce为8字节随机数种子；
 
 ·Key ID为20字节地址哈希（未经Base58编码）；
 
-·Plot Route为4字节可自定义Plot身份标识符；
+·Plot Route为3字节可自定义Plot身份标识符；
+
+·在P盘格式中，该31字节的PlotSeed会被补全为32字节，末尾添加x80；
 
 ==参考资料==
 [1] https://github.com/lavaio/lvips/blob/master/lvip-0001.mediawiki
