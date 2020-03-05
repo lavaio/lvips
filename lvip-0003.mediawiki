@@ -1,0 +1,63 @@
+LVIP-0003： 原子交换机
+
+<pre>
+LVIP-0003：
+LVIP: 0003
+Title: A Proposal for Atomic Switch
+Author: lavatech
+Status: Draft
+Type: Protocol
+Created: 2019-11-11
+Superseded-By: None
+</pre>
+
+
+==概述==
+LVIP-0003提出了一种原子交换机（atomic switch）的原型，以提供lava与比特币之间的原子交换（atomic swaps）服务。
+原子交换是一种支持两种运行在不同区块链网络上的加密货币进行快速交换的技术。这种交易过程（也称为原子跨链交易）是基于智能合约（脚本）的，可以支持用户从他们的加密钱包中直接交换想要的代币。因此，原子交换本质上是跨链的点对点交易。
+
+==动机==
+原子交换具有改善加密货币领域的巨大潜力，但目前尚未大范围进行测试。跨链交易最终可以解决许多中心化交易所存在的问题。虽然这些交易所目前仍然维持着加密货币的运行，但是它们仍然存在一系列隐患。其中部分问题包括：
+*更重大的威胁隐患：中心化交易所具有更大的价值，因此他们更容易受到黑客攻击，中心化交易所是数字货币劫持的主要目标。
+*不完善的资金管理以及人为错误：中心化交易所需要人为运营。如果那些担任重要角色的管理者发生失误，或决策者在交易所运营方面做出决策失误，那么交易所用户的资金就会受到损失。
+*运营成本较高：中心化交易所有较高的提现和交易手续费。
+*交易量剧增导致低效率：当市场活动过于活跃时，中心化交易所往往无法应对大量增加的交易需求，导致系统运行缓慢或服务不可用。
+==哈希时间锁合约（HTLC）==
+本设计以HTLC为技术基础，关于HTLC的详细介绍，见BIP-0199。
+
+==交换机功能概述==
+本方案中的交换机必须拥有如下功能：
+*由于BTC和Lava的私钥系统相同，所以交换机中Lava私钥和BTC私钥共用，
+*能够获取原象n对应的哈希值imagehash，
+*能构造LAVA和BTC主网上的HTLC脚本地址，
+*能通过私钥创建LAVA和BTC主网上的花费HTLC的交易（spendhtlc交易），并广播，以处理：
+*#超时后将LV或BTC转移回原地址，
+*#使用原象解锁HTLC交易后，将币转移至用户自身的地址，
+*能解析spendhtlc交易使用的原象n。
+
+==交换机工作原理==
+<img src=lvip-0003/sequenceDiagram.png></img>
+现在让我们来对照时序图看看原子交换机是如何工作的。假设Alice想用她手中的0.1BTC，换取Bob的100LV，同时Alice和Bob各自都持有自己的原子交换机。交易流程如下：
+#Alice首先自定义一个原象n（16进制），再通过LAVA的getimagehash接口来生成原象的哈希值imagehash。
+#Alice使用imagehash，和自定义的超时高度H1，使用LAVA的createhtlcaddress接口构造一个脚本地址，address_1。由于BTC和LAVA的账户模型相同，因此想在BTC主网上构造HTLC交易，也即在BTC主网上对地址address_1转账，因此这里Alice对address_1转账了0.1BTC，将改HTLC交易标记为TX1。该交易的超时高度为H1，也就是当BTC主网高度超过H1时，Alice有权回收账户中的0.1BTC（回收方式见后述）。
+#Alice将H1，imagehash以及TX1的txid告知Bob，Bob再次调用createhtlcaddress接口，检查能否再次获得address_1，如果构造后确实生成了address_1，则Alice的TX1校验通过。Bob可以信任Alice的BTC转账。
+#Bob根据Alice提供的imagehash，以及Bob自定义的超时高度H2（H2<H1）,调用createhtlcaddress接口生成address_2。接着Bob在LAVA主网上对address_2转账100lv。完成了第二笔HTLC交易TX2。并将该交易id告知Alice。
+#Alice于是利用TX2和自定义的原象n，调用spendhtlcwithwallet接口生成原始交易字节串，再通过LAVA的sendrawtransaction接口，花费了Bob在address_2上的这100LV。这笔花费HTLC的交易我们标记为TX3。
+#Bob通过浏览器观察到了TX3交易，调用checkpreimage接口，对TX3进行了解析，获取了Alice的原象n。
+#Bob于是利用TX1和解析到的原象n，调用spendhtlcwithwallet接口生成原始交易字节串，再通过BTC第三方平台将原始交易发送至BTC主网，花费了Alice在address_1上的这0.1BTC。这笔花费HTLC的交易我们标记为TX4。
+以上就是Alice和Bob跨链互换的方案，该方案还能有效防止任何一方违约，做到原子级互换，假设：
+*第2步之前发生违约，什么都没发生。
+*第4步之前发生违约，也即Bob并没有对address_2转账。那么Bob也无法获得Alice的原象n，当BTC主网到达H1高度后，Alice通过调用spendhtlcwithwallet接口可将0.1BTC取回，也即refund功能。
+*第5步之前发生违约，也即Bob对address_2转账100LV，而Alice并未利用原象n花费这100LV。于是等到LAVA主网到达H2高度后，Bob取走address_2中的100LV，接着当BTC主网到达H1高度后，Alice相应取走address_1的0.1BTC。
+*第5步之后，Bob必须在BTC主网到达H1高度之前，将address_1地址中的0.1BTC转走。
+
+==参考资料==
+[https://github.com/bitcoin/bips/blob/master/bip-0199.mediawiki BIP0199: HTLC]
+
+[https://github.com/lavaio/lvips/blob/master/lvip-0001.mediawiki LVIP0001: Lava Improvement Proposal]
+
+==历史==
+# lavatech编写提交。
+
+==修改记录==
+# 2019-11-11：文档发布 By lavatech 
